@@ -1,0 +1,47 @@
+{
+	"name": "riverd-lua",
+	"description": "Dynamic and static D bindings for Lua scripting language library",
+	"copyright": "Copyright © 2019, Aurora Free Open Source Software",
+	"license": "LGPL-3.0",
+	"authors": [
+		"Luís Ferreira"
+	],
+	"targetType": "staticLibrary",
+	"targetPath": ".out/bin",
+	"importPaths": ["source"],
+	"sourcePaths": ["source"],
+	"configurations": [
+		{
+			"name": "static",
+			"versions": ["RiverD_Lua_Static"],
+			"libs": [
+				"lua"
+			],
+			"excludedSourceFiles": [
+				"source/riverd/lua/dynfun.d",
+				"source/riverd/lua/dynload.d"
+			]
+		},
+		{
+			"name": "dynamic",
+			"dependencies": {
+				"riverd-core": "~>1.0.1"
+			},
+			"excludedSourceFiles": [
+				"source/riverd/lua/statfun.d"
+			]
+		},
+		{
+			"name": "dynamic-betterc",
+			"dependencies": {
+				"riverd-core": "~>1.0.1"
+			},
+			"subConfigurations": {
+				"riverd-core": "betterc"
+			},
+			"excludedSourceFiles": [
+				"source/riverd/lua/statfun.d"
+			]
+		}
+	]
+}
