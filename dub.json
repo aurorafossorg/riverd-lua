@@ -15,7 +15,7 @@
 			"name": "static",
 			"versions": ["RiverD_Lua_Static"],
 			"libs": [
-				"lua"
+				"lua5.3"
 			],
 			"excludedSourceFiles": [
 				"source/riverd/lua/dynfun.d",
