@@ -1,3 +1,6 @@
+v1.0.2
+- Fix static configuration for lua5.3 version
+
 v1.0.1
 - Add liblua5.3.so
 
