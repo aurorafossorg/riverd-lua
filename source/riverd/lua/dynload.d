@@ -7,6 +7,7 @@
  \__,_|\__,_|_|  \___/|_|  \__,_| |_| \___/|___/___/
 
 Copyright (C) 2018-2019 Aurora Free Open Source Software.
+Copyright (C) 2018-2019 Luís Ferreira <luis@aurorafoss.org>
 
 This file is part of the Aurora Free Open Source Software. This
 organization promote free and open source software that you can
@@ -33,6 +34,16 @@ For more info about intellectual property visit: aurorafoss.org or
 directly send an email to: contact (at) aurorafoss.org .
 */
 
+/++
+Dynamic library loader for Lua bindings
+
+This file defines the dynamic loader for Lua library bindings.
+
+Authors: Luís Ferreira <luis@aurorafoss.org>
+Copyright: All rights reserved, Aurora Free Open Source Software
+License: GNU Lesser General Public License (Version 3, 29 June 2007)
+Date: 2018-2019
++/
 module riverd.lua.dynload;
 
 import riverd.loader;
@@ -41,6 +52,13 @@ public import riverd.lua.dynfun;
 
 version(D_BetterC)
 {
+	/** Dynamic loader for lua library
+	 *
+	 * This function load the lua library and bind all dynamic function symbols
+	 *
+	 * Returns: Returns the loader handler
+	 */
+	@trusted
 	void* dylib_load_lua() {
 		version(Windows) void* handle = dylib_load("lua53.dll");
 		else version(OSX) void* handle = dylib_load("liblua.5.3.dylib");
@@ -208,7 +226,7 @@ else
 	mixin(DylibLoaderBuilder!("Lua", _lua_libs, riverd.lua.dynfun));
 }
 
-unittest {
+@system unittest {
 	void* lua_handle = dylib_load_lua();
 	assert(dylib_is_loaded(lua_handle));
 

@@ -7,6 +7,7 @@
  \__,_|\__,_|_|  \___/|_|  \__,_| |_| \___/|___/___/
 
 Copyright (C) 2018-2019 Aurora Free Open Source Software.
+Copyright (C) 2018-2019 Luís Ferreira <luis@aurorafoss.org>
 
 This file is part of the Aurora Free Open Source Software. This
 organization promote free and open source software that you can
@@ -33,16 +34,95 @@ For more info about intellectual property visit: aurorafoss.org or
 directly send an email to: contact (at) aurorafoss.org .
 */
 
+/++
+Static function declarations for Lua bindings
+
+This file defines all static function declarations for Lua library bindings.
+
+Authors: Luís Ferreira <luis@aurorafoss.org>
+Copyright: All rights reserved, Aurora Free Open Source Software
+License: GNU Lesser General Public License (Version 3, 29 June 2007)
+Date: 2018-2019
++/
 module riverd.lua.statfun;
 
-import riverd.lua.types;
 import core.stdc.stdarg;
+import riverd.lua.types;
+
 
 extern(C) @nogc nothrow {
-	lua_State* lua_newstate(lua_Alloc, void*);
-	void lua_close(lua_State*);
-	lua_State* lua_newthread(lua_State*);
-	lua_CFunction lua_atpanic(lua_State*, lua_CFunction);
+
+	/** Creates a new thread running in a new, independent state.
+	 *
+	 * Params:
+	 * 	f = The allocator function. Lua does all memory allocation for this
+	 * 		state through this function.
+	 * 	ud = an opaque pointer that Lua passes to the allocator in every call.
+	 *
+	 * Returns: `null` if it cannot create the thread or the state
+	 * 	(due to lack of memory).
+	 *
+	 * See_Also: $(REF lua_Alloc, riverd,lua,types)
+	 */
+	lua_State* lua_newstate(lua_Alloc f, void* ud);
+
+
+	/** Destroys all objects in the given Lua state.
+	 *
+	 * Destroys all objects in the given Lua state (calling the corresponding
+	 * garbage-collection metamethods, if any) and frees all dynamic memory
+	 * used by this state.
+	 * In several platforms, you may not need to call this function,
+	 * because all resources are naturally released when the host
+	 * program ends. On the other hand, long-running programs that create
+	 * multiple states, such as daemons or web servers, will probably need
+	 * to close states as soon as they are not needed.
+	 *
+	 * Params:
+	 * 	s = Lua state
+	 *
+	 * See_Also: $(REF lua_State, riverd,lua,types)
+	 */
+	void lua_close(lua_State* s);
+
+
+	/** Creates a new thread.
+	 *
+	 * Creates a new thread and pushes it on the stack. The new thread returned
+	 * by this function shares with the original thread its global environment,
+	 * but has an independent execution stack.
+	 *
+	 * Params:
+	 * 	s = Lua state
+	 *
+	 * Returns: a pointer to a lua_State that represents this new thread.
+	 *
+	 * Note: There is no explicit function to close or to destroy a thread.
+	 * 		 Threads are subject to garbage collection, like any Lua object.
+	 *
+	 * See_Also: $(REF lua_State, riverd,lua,types)
+	 */
+	lua_State* lua_newthread(lua_State* s);
+
+
+	/** Sets a new panic function
+	 *
+	 * Params:
+	 * 	s = Lua state
+	 * 	func = C lua_State registered function
+	 *
+	 * Returns: the old panic functio
+	 *
+	 * Note: The panic function can access the error message at the top of the stack.
+	 * 		 If an error happens outside any protected environment, Lua calls a panic
+	 * function and then calls exit(EXIT_FAILURE), thus exiting the host application.
+	 * Your panic function can avoid this exit by never returning (e.g., doing a long
+	 * jump).
+	 *
+	 * See_Also: $(REF lua_State, riverd,lua,types)
+	 * 			 $(REF lua_CFunction, riverd,lua,types)
+	 */
+	lua_CFunction lua_atpanic(lua_State* s, lua_CFunction func);
 	const(lua_Number)* lua_version(lua_State*);
 	int lua_absindex(lua_State*, int);
 	int lua_gettop(lua_State*);
