@@ -25,7 +25,7 @@
 		{
 			"name": "dynamic",
 			"dependencies": {
-				"riverd-core": "~>1.0.1"
+				"riverd-loader": "~>1.0.2"
 			},
 			"excludedSourceFiles": [
 				"source/riverd/lua/statfun.d"
@@ -34,10 +34,10 @@
 		{
 			"name": "dynamic-betterc",
 			"dependencies": {
-				"riverd-core": "~>1.0.1"
+				"riverd-loader": "~>1.0.2"
 			},
 			"subConfigurations": {
-				"riverd-core": "betterc"
+				"riverd-loader": "betterc"
 			},
 			"excludedSourceFiles": [
 				"source/riverd/lua/statfun.d"
