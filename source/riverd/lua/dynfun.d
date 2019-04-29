@@ -6,6 +6,7 @@
 | (_| | |_| | | | (_) | | | (_| | | || (_) \__ \__ \
  \__,_|\__,_|_|  \___/|_|  \__,_| |_| \___/|___/___/
 
+Copyright (C) 1994-2018 Lua.org, PUC-Rio.
 Copyright (C) 2018-2019 Aurora Free Open Source Software.
 Copyright (C) 2018-2019 Luís Ferreira <luis@aurorafoss.org>
 
