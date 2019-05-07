@@ -224,7 +224,7 @@ enum
 
 
 alias lua_Number = double; /** type of numbers in Lua */
-alias lua_Integer = ptrdiff_t; /** type for integer functions */
+alias lua_Integer = long; /** type for integer functions */
 alias lua_Unsigned = uint; /** type for integer functions */
 alias lua_KContext = ptrdiff_t; /** type for continuation-function contexts */
 
