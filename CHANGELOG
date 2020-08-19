@@ -11,3 +11,6 @@ v1.0.3
 - Change from riverd-core to riverd-loader
 - Add Gitlab CI configuration
 - Add missing Lua copyright statement
+
+v1.1.0
+- Update bindings to match lua5.4 library version
