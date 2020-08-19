@@ -70,6 +70,7 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_newstate, "lua_newstate");
 		dylib_bindSymbol(handle, cast(void**)&lua_close, "lua_close");
 		dylib_bindSymbol(handle, cast(void**)&lua_newthread, "lua_newthread");
+		dylib_bindSymbol(handle, cast(void**)&lua_resetthread, "lua_resetthread");
 		dylib_bindSymbol(handle, cast(void**)&lua_atpanic, "lua_atpanic");
 		dylib_bindSymbol(handle, cast(void**)&lua_version, "lua_version");
 		dylib_bindSymbol(handle, cast(void**)&lua_absindex, "lua_absindex");
@@ -118,9 +119,9 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_rawgeti, "lua_rawgeti");
 		dylib_bindSymbol(handle, cast(void**)&lua_rawgetp, "lua_rawgetp");
 		dylib_bindSymbol(handle, cast(void**)&lua_createtable, "lua_createtable");
-		dylib_bindSymbol(handle, cast(void**)&lua_newuserdata, "lua_newuserdata");
+		dylib_bindSymbol(handle, cast(void**)&lua_newuserdatauv, "lua_newuserdatauv");
 		dylib_bindSymbol(handle, cast(void**)&lua_getmetatable, "lua_getmetatable");
-		dylib_bindSymbol(handle, cast(void**)&lua_getuservalue, "lua_getuservalue");
+		dylib_bindSymbol(handle, cast(void**)&lua_getiuservalue, "lua_getiuservalue");
 		dylib_bindSymbol(handle, cast(void**)&lua_setglobal, "lua_setglobal");
 		dylib_bindSymbol(handle, cast(void**)&lua_settable, "lua_settable");
 		dylib_bindSymbol(handle, cast(void**)&lua_setfield, "lua_setfield");
@@ -128,7 +129,7 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_rawseti, "lua_rawseti");
 		dylib_bindSymbol(handle, cast(void**)&lua_rawsetp, "lua_rawsetp");
 		dylib_bindSymbol(handle, cast(void**)&lua_setmetatable, "lua_setmetatable");
-		dylib_bindSymbol(handle, cast(void**)&lua_setuservalue, "lua_setuservalue");
+		dylib_bindSymbol(handle, cast(void**)&lua_setiuservalue, "lua_setiuservalue");
 		dylib_bindSymbol(handle, cast(void**)&lua_callk, "lua_callk");
 		dylib_bindSymbol(handle, cast(void**)&lua_pcallk, "lua_pcallk");
 		dylib_bindSymbol(handle, cast(void**)&lua_load, "lua_load");
@@ -137,6 +138,8 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_resume, "lua_resume");
 		dylib_bindSymbol(handle, cast(void**)&lua_status, "lua_status");
 		dylib_bindSymbol(handle, cast(void**)&lua_isyieldable, "lua_isyieldable");
+		dylib_bindSymbol(handle, cast(void**)&lua_setwarnf, "lua_setwarnf");
+		dylib_bindSymbol(handle, cast(void**)&lua_warning, "lua_warning");
 		dylib_bindSymbol(handle, cast(void**)&lua_gc, "lua_gc");
 		dylib_bindSymbol(handle, cast(void**)&lua_error, "lua_error");
 		dylib_bindSymbol(handle, cast(void**)&lua_next, "lua_next");
@@ -145,6 +148,7 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_stringtonumber, "lua_stringtonumber");
 		dylib_bindSymbol(handle, cast(void**)&lua_getallocf, "lua_getallocf");
 		dylib_bindSymbol(handle, cast(void**)&lua_setallocf, "lua_setallocf");
+		dylib_bindSymbol(handle, cast(void**)&lua_toclose, "lua_toclose");
 		dylib_bindSymbol(handle, cast(void**)&lua_getstack, "lua_getstack");
 		dylib_bindSymbol(handle, cast(void**)&lua_getinfo, "lua_getinfo");
 		dylib_bindSymbol(handle, cast(void**)&lua_getlocal, "lua_getlocal");
@@ -157,6 +161,8 @@ version(D_BetterC)
 		dylib_bindSymbol(handle, cast(void**)&lua_gethook, "lua_gethook");
 		dylib_bindSymbol(handle, cast(void**)&lua_gethookmask, "lua_gethookmask");
 		dylib_bindSymbol(handle, cast(void**)&lua_gethookcount, "lua_gethookcount");
+		dylib_bindSymbol(handle, cast(void**)&lua_setcstacklimit, "lua_setcstacklimit");
+
 		dylib_bindSymbol(handle, cast(void**)&luaL_checkversion_, "luaL_checkversion_");
 		dylib_bindSymbol(handle, cast(void**)&luaL_getmetafield, "luaL_getmetafield");
 		dylib_bindSymbol(handle, cast(void**)&luaL_callmeta, "luaL_callmeta");
@@ -220,9 +226,9 @@ version(D_BetterC)
 }
 else
 {
-	version(Windows) private enum string[] _lua_libs = ["lua53.dll"];
-	else version(OSX) private enum string[] _lua_libs = ["liblua.5.3.dylib"];
-	else version(Posix) private enum string[] _lua_libs = ["liblua.so.5.3", "liblua5.3.so"];
+	version(Windows) private enum string[] _lua_libs = ["lua54.dll"];
+	else version(OSX) private enum string[] _lua_libs = ["liblua.5.4.dylib"];
+	else version(Posix) private enum string[] _lua_libs = ["liblua.so.5.4", "liblua5.4.so"];
 
 	mixin(DylibLoaderBuilder!("Lua", _lua_libs, riverd.lua.dynfun));
 }

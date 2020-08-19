@@ -56,6 +56,7 @@ __gshared
 	da_lua_newstate lua_newstate; ///
 	da_lua_close lua_close; ///
 	da_lua_newthread lua_newthread; ///
+	da_lua_resetthread lua_resetthread; ///
 	da_lua_atpanic lua_atpanic; ///
 	da_lua_version lua_version; ///
 	da_lua_absindex lua_absindex; ///
@@ -104,9 +105,9 @@ __gshared
 	da_lua_rawgeti lua_rawgeti; ///
 	da_lua_rawgetp lua_rawgetp; ///
 	da_lua_createtable lua_createtable; ///
-	da_lua_newuserdata lua_newuserdata; ///
+	da_lua_newuserdatauv lua_newuserdatauv; ///
 	da_lua_getmetatable lua_getmetatable; ///
-	da_lua_getuservalue lua_getuservalue; ///
+	da_lua_getiuservalue lua_getiuservalue; ///
 	da_lua_setglobal lua_setglobal; ///
 	da_lua_settable lua_settable; ///
 	da_lua_setfield lua_setfield; ///
@@ -114,7 +115,7 @@ __gshared
 	da_lua_rawseti lua_rawseti; ///
 	da_lua_rawsetp lua_rawsetp; ///
 	da_lua_setmetatable lua_setmetatable; ///
-	da_lua_setuservalue lua_setuservalue; ///
+	da_lua_setiuservalue lua_setiuservalue; ///
 	da_lua_callk lua_callk; ///
 	da_lua_pcallk lua_pcallk; ///
 	da_lua_load lua_load; ///
@@ -123,6 +124,8 @@ __gshared
 	da_lua_resume lua_resume; ///
 	da_lua_status lua_status; ///
 	da_lua_isyieldable lua_isyieldable; ///
+	da_lua_setwarnf lua_setwarnf; ///
+	da_lua_warning lua_warning; ///
 	da_lua_gc lua_gc; ///
 	da_lua_error lua_error; ///
 	da_lua_next lua_next; ///
@@ -131,6 +134,7 @@ __gshared
 	da_lua_stringtonumber lua_stringtonumber; ///
 	da_lua_getallocf lua_getallocf; ///
 	da_lua_setallocf lua_setallocf; ///
+	da_lua_toclose lua_toclose; ///
 	da_lua_getstack lua_getstack; ///
 	da_lua_getinfo lua_getinfo; ///
 	da_lua_getlocal lua_getlocal; ///
@@ -143,6 +147,8 @@ __gshared
 	da_lua_gethook lua_gethook; ///
 	da_lua_gethookmask lua_gethookmask; ///
 	da_lua_gethookcount lua_gethookcount; ///
+	da_lua_setcstacklimit lua_setcstacklimit; ///
+
 	da_luaL_checkversion_ luaL_checkversion_; ///
 	da_luaL_getmetafield luaL_getmetafield; ///
 	da_luaL_callmeta luaL_callmeta; ///

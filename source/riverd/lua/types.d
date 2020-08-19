@@ -96,42 +96,48 @@ enum LUAI_MAXSTACK = 1_000_000;
 enum LUA_EXTRASPACE = (void*).sizeof;
 
 
-/** Mininum Major Lua version which this binding is compatible with
+/** Mininum Major Lua version in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_VERSION_MINOR)
  */
 enum LUA_VERSION_MAJOR ="5";
 
 
-/** Minimum Minor Lua version which this binding is compatible with
+/** Minimum Minor Lua version in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_VERSION_MAJOR)
  */
-enum LUA_VERSION_MINOR ="3";
+enum LUA_VERSION_MINOR ="4";
 
 
-/** Minimum Lua version number which this binding is compatible with
+/** Minimum Lua version number in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_VERSION)
  */
-enum LUA_VERSION_NUM = 503;
+enum LUA_VERSION_NUM = 504;
 
 
-/** Minimum Lua release version which this binding is compatible with
+/** Minimum Lua release version in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_RELEASE)
  */
 enum LUA_VERSION_RELEASE = "0";
 
+/** Lua Release version number in which these bindings are compatible
+ *
+ * See_Also: $(LREF LUA_RELEASE)
+ */
+enum LUA_VERSION_RELEASE_NUM = (LUA_VERSION_NUM * 100 + 0);
 
-/** Minimum Lua version which this binding is compatible with
+
+/** Minimum Lua version in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_VERSION_NUM)
  */
 enum LUA_VERSION = "Lua " ~ LUA_VERSION_MAJOR ~ "." ~ LUA_VERSION_MINOR;
 
 
-/** Minimum Lua release which this binding is compatible with
+/** Minimum Lua release in which these bindings are compatible
  *
  * See_Also: $(LREF LUA_VERSION_RELEASE)
  */
@@ -142,7 +148,7 @@ enum LUA_RELEASE = LUA_VERSION ~ "." ~ LUA_VERSION_RELEASE;
  *
  * See_Also: $(LREF LUA_AUTHORS)
  */
-enum LUA_COPYRIGHT = LUA_RELEASE ~ "  Copyright (C) 1994-2018 Lua.org, PUC-Rio";
+enum LUA_COPYRIGHT = LUA_RELEASE ~ "  Copyright (C) 1994-2020 Lua.org, PUC-Rio";
 
 
 /** Lua authors
@@ -180,8 +186,7 @@ enum {
 	LUA_ERRRUN		= 2, /** runtime error */
 	LUA_ERRSYNTAX	= 3, /** syntax error during precompilation */
 	LUA_ERRMEM		= 4, /** memory allocation (out-of-memory) error */
-	LUA_ERRGCMM		= 5, /** error while running a __gc metamethod. */
-	LUA_ERRERR		= 6, /** error while running the message handler. */
+	LUA_ERRERR		= 5, /** error while running the message handler. */
 }
 
 
@@ -206,8 +211,11 @@ enum
 	LUA_TFUNCTION		= 6, /** function type */
 	LUA_TUSERDATA		= 7, /** user data type */
 	LUA_TTHREAD			= 8, /** thread type */
-	LUA_NUMTAGS			= 9, /** number tags */
+	LUA_NUMTYPES		= 9, /** number types */
 }
+
+/** Lua type number tags */
+enum LUA_NUMTAGS = LUA_NUMTYPES;
 
 
 /** minimum Lua stack available to a C function */
@@ -276,6 +284,9 @@ extern(C) nothrow {
 
 	/** Type for memory-allocation functions */
 	alias lua_Alloc = void* function(void*, void*, size_t, size_t);
+
+	/** Type for warning functions */
+	alias lua_WarnFunction = void* function(void*, const char*, int);
 }
 
 
@@ -340,6 +351,8 @@ enum {
 
 	/// stfu
 	LUA_GCISRUNNING = 9, ///
+	LUA_GCGEN = 10, ///
+	LUA_GCINC = 11, ///
 }
 
 
@@ -374,6 +387,7 @@ struct lua_Debug {
 	const char* namewhat;
 	const char* what;
 	const char* source;
+	size_t srclen;
 	int currentline;
 	int linedefined;
 	int lastlinedefined;
@@ -381,6 +395,10 @@ struct lua_Debug {
 	byte params;
 	char isvararg;
 	char istailcall;
+	/// index of the first transferred value
+	ushort ftransfer;
+	/// number of transferred values
+	ushort ntransfer;
 	char[LUA_IDSIZE] short_src;
 
 private:
@@ -612,6 +630,20 @@ version(RiverD_Lua_Static) {
 		return luaL_loadbufferx(L, s, sz, n, null);
 	}
 
+	pragma(inline)
+	void* lua_newuserdata(lua_State* L, size_t s) {
+		return lua_newuserdatauv(L, s, 1);
+	}
+
+	pragma(inline)
+	int lua_getuservalue(lua_State* L, int idx) {
+		return lua_getiuservalue(L, idx, 1);
+	}
+
+	pragma(inline)
+	void lua_setuservalue(lua_State* L, int idx) {
+		lua_newuserdatauv(L, idx, 1);
+	}
 }
 
 
@@ -619,8 +651,9 @@ extern(C) @nogc nothrow {
 	alias da_lua_newstate = lua_State* function(lua_Alloc, void*); ///
 	alias da_lua_close = void function(lua_State*); ///
 	alias da_lua_newthread = lua_State* function(lua_State*); ///
+	alias da_lua_resetthread = int function(lua_State *); ///
 	alias da_lua_atpanic = lua_CFunction function(lua_State*, lua_CFunction); ///
-	alias da_lua_version = const(lua_Number)* function(lua_State*); ///
+	alias da_lua_version = lua_Number function(lua_State*); ///
 	alias da_lua_absindex = int function(lua_State*, int); ///
 	alias da_lua_gettop = int function(lua_State*); ///
 	alias da_lua_settop = void function(lua_State*, int); ///
@@ -640,7 +673,7 @@ extern(C) @nogc nothrow {
 	alias da_lua_tointegerx = lua_Integer function(lua_State*, int, int*); ///
 	alias da_lua_toboolean = int function(lua_State*, int); ///
 	alias da_lua_tolstring = const(char)* function(lua_State*, int, size_t*); ///
-	alias da_lua_rawlen = size_t function(lua_State*, int); ///
+	alias da_lua_rawlen = lua_Unsigned function(lua_State*, int); ///
 	alias da_lua_tocfunction = lua_CFunction function(lua_State*, int); ///
 	alias da_lua_touserdata = void* function(lua_State*, int); ///
 	alias da_lua_tothread = lua_State* function(lua_State*, int); ///
@@ -667,9 +700,9 @@ extern(C) @nogc nothrow {
 	alias da_lua_rawgeti = int function(lua_State*, int, int); ///
 	alias da_lua_rawgetp = int function(lua_State*, int, const(void)*); ///
 	alias da_lua_createtable = void function(lua_State*, int, int); ///
-	alias da_lua_newuserdata = void* function(lua_State*, size_t); ///
+	alias da_lua_newuserdatauv = void* function(lua_State*, size_t, int); ///
 	alias da_lua_getmetatable = int function(lua_State*, int); ///
-	alias da_lua_getuservalue = int function(lua_State*, int); ///
+	alias da_lua_getiuservalue = int function(lua_State*, int, int); ///
 	alias da_lua_setglobal = void function(lua_State*, const(char)*); ///
 	alias da_lua_settable = void function(lua_State*, int); ///
 	alias da_lua_setfield = void function(lua_State*, int, const(char)*); ///
@@ -677,16 +710,18 @@ extern(C) @nogc nothrow {
 	alias da_lua_rawseti = void function(lua_State*, int, lua_Integer); ///
 	alias da_lua_rawsetp = void function(lua_State*, int, const(void)*); ///
 	alias da_lua_setmetatable = int function(lua_State*, int); ///
-	alias da_lua_setuservalue = void function(lua_State*, int); ///
+	alias da_lua_setiuservalue = void function(lua_State*, int, int); ///
 	alias da_lua_callk = void function(lua_State*, int, int, lua_KContext, lua_KFunction); ///
 	alias da_lua_pcallk = int function(lua_State*, int, int, int, lua_KContext, lua_KFunction); ///
 	alias da_lua_load = int function(lua_State*, lua_Reader, void*, const(char)*, const(char)*); ///
 	alias da_lua_dump = int function(lua_State*, lua_Writer, void*, int); ///
 	alias da_lua_yieldk = int function(lua_State*, int, lua_KContext, lua_KFunction); ///
-	alias da_lua_resume = int function(lua_State*, lua_State*, int); ///
+	alias da_lua_resume = int function(lua_State*, lua_State*, int, int*); ///
 	alias da_lua_status = int function(lua_State*); ///
 	alias da_lua_isyieldable = int function(lua_State*); ///
-	alias da_lua_gc = int function(lua_State*, int, int); ///
+	alias da_lua_setwarnf = void function(lua_State*, lua_WarnFunction, void *); ///
+	alias da_lua_warning = void function(lua_State*, const char*, int); ///
+	alias da_lua_gc = int function(lua_State*, int, ...); ///
 	alias da_lua_error = int function(lua_State*); ///
 	alias da_lua_next = int function(lua_State*, int); ///
 	alias da_lua_concat = void function(lua_State*, int); ///
@@ -694,6 +729,7 @@ extern(C) @nogc nothrow {
 	alias da_lua_stringtonumber = size_t function(lua_State*, const(char)*); ///
 	alias da_lua_getallocf = lua_Alloc function(lua_State*, void**); ///
 	alias da_lua_setallocf = void function(lua_State*, lua_Alloc, void*); ///
+	alias da_lua_toclose = void function(lua_State*, int); ///
 	alias da_lua_getstack = int function(lua_State*, int, lua_Debug*); ///
 	alias da_lua_getinfo = int function(lua_State*, const(char)*, lua_Debug*); ///
 	alias da_lua_getlocal = const(char)* function(lua_State*, const(lua_Debug)*, int); ///
@@ -706,6 +742,7 @@ extern(C) @nogc nothrow {
 	alias da_lua_gethook = lua_Hook function(lua_State*); ///
 	alias da_lua_gethookmask = int function(lua_State*); ///
 	alias da_lua_gethookcount = int function(lua_State*); ///
+	alias da_lua_setcstacklimit = int function(lua_State*, uint); ///
 
 	alias da_luaL_checkversion_ = void function(lua_State*, lua_Number, size_t); ///
 	alias da_luaL_getmetafield = int function(lua_State*, int, const(char)*); ///

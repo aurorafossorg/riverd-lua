@@ -105,6 +105,23 @@ extern(C) @nogc nothrow {
 	 */
 	lua_State* lua_newthread(lua_State* s);
 
+	/** Resets a thread
+	 *
+	 * Cleaning its call stack and closing all pending to-be-closed variables.
+	 *
+	 * Params:
+	 * 	s = Lua state
+	 *
+	 * Returns: LUA_OK for no errors in closing methods, or an error status
+	 *          otherwise.
+	 *
+	 * Note: In case of error, leaves the error object on the top of the stack.
+	 *
+	 * See_Also: $(REF lua_State, riverd,lua,types)
+	 */
+
+	int lua_resetthread(lua_State *s);
+
 
 	/** Sets a new panic function
 	 *
@@ -124,7 +141,8 @@ extern(C) @nogc nothrow {
 	 * 			 $(REF lua_CFunction, riverd,lua,types)
 	 */
 	lua_CFunction lua_atpanic(lua_State* s, lua_CFunction func);
-	const(lua_Number)* lua_version(lua_State*);
+
+	lua_Number lua_version(lua_State*);
 	int lua_absindex(lua_State*, int);
 	int lua_gettop(lua_State*);
 	void lua_settop(lua_State*, int);
@@ -144,7 +162,7 @@ extern(C) @nogc nothrow {
 	lua_Integer lua_tointegerx(lua_State*, int, int*);
 	int lua_toboolean(lua_State*, int);
 	const(char)* lua_tolstring(lua_State*, int, size_t*);
-	size_t lua_rawlen(lua_State*, int);
+	lua_Unsigned lua_rawlen(lua_State*, int);
 	lua_CFunction lua_tocfunction(lua_State*, int);
 	void* lua_touserdata(lua_State*, int);
 	lua_State* lua_tothread(lua_State*, int);
@@ -171,9 +189,9 @@ extern(C) @nogc nothrow {
 	int lua_rawgeti(lua_State*, int, int);
 	int lua_rawgetp(lua_State*, int, const(void)*);
 	void lua_createtable(lua_State*, int, int);
-	void* lua_newuserdata(lua_State*, size_t);
+	void* lua_newuserdatauv(lua_State*, size_t, int);
 	int lua_getmetatable(lua_State*, int);
-	int lua_getuservalue(lua_State*, int);
+	int lua_getiuservalue(lua_State*, int, int);
 	void lua_setglobal(lua_State*, const(char)*);
 	void lua_settable(lua_State*, int);
 	void lua_setfield(lua_State*, int, const(char)*);
@@ -181,16 +199,18 @@ extern(C) @nogc nothrow {
 	void lua_rawseti(lua_State*, int, lua_Integer);
 	void lua_rawsetp(lua_State*, int, const(void)*);
 	int lua_setmetatable(lua_State*, int);
-	void lua_setuservalue(lua_State*, int);
+	void lua_setiuservalue(lua_State*, int, int);
 	void lua_callk(lua_State*, int, int, lua_KContext, lua_KFunction);
 	int lua_pcallk(lua_State*, int, int, int, lua_KContext, lua_KFunction);
 	int lua_load(lua_State*, lua_Reader, void*, const(char)*, const(char)*);
 	int lua_dump(lua_State*, lua_Writer, void*, int);
 	int lua_yieldk(lua_State*, int, lua_KContext, lua_KFunction);
-	int lua_resume(lua_State*, lua_State*, int);
+	int lua_resume(lua_State*, lua_State*, int, int*);
 	int lua_status(lua_State*);
 	int lua_isyieldable(lua_State*);
-	int lua_gc(lua_State*, int, int);
+	void lua_setwarnf(lua_State*, lua_WarnFunction, void *);
+	void lua_warning(lua_State*, const char*, int);
+	int lua_gc(lua_State*, int, ...);
 	int lua_error(lua_State*);
 	int lua_next(lua_State*, int);
 	void lua_concat(lua_State*, int);
@@ -198,6 +218,7 @@ extern(C) @nogc nothrow {
 	size_t lua_stringtonumber(lua_State*, const(char)*);
 	lua_Alloc lua_getallocf(lua_State*, void**);
 	void lua_setallocf(lua_State*, lua_Alloc, void*);
+	void lua_toclose(lua_State*, int);
 	int lua_getstack(lua_State*, int, lua_Debug*);
 	int lua_getinfo(lua_State*, const(char)*, lua_Debug*);
 	const(char)* lua_getlocal(lua_State*, const(lua_Debug)*, int);
@@ -210,6 +231,8 @@ extern(C) @nogc nothrow {
 	lua_Hook lua_gethook(lua_State*);
 	int lua_gethookmask(lua_State*);
 	int lua_gethookcount(lua_State*);
+	int lua_setcstacklimit(lua_State*, uint);
+
 	void luaL_checkversion_(lua_State*, lua_Number, size_t);
 	int luaL_getmetafield(lua_State*, int, const(char)*);
 	int luaL_callmeta(lua_State*, int, const(char)*);
